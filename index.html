@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Alphabet Pop - A playful letter recognition game for preschoolers">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Alphabet Pop</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Fredoka One -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- ZzFX Sound Effects Library - Inline for global access -->
+    <script>
+    // ZzFX Micro - Inline version for global access
+    // MIT License - Copyright 2019 Frank Force
+    // https://github.com/KilledByAPixel/ZzFX
+    (function() {
+        const zzfxV = 0.3;
+        let zzfxX = null;
+        
+        // Create AudioContext on first use (requires user interaction in some browsers)
+        function getAudioContext() {
+            if (!zzfxX) {
+                try {
+                    zzfxX = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.error('Failed to create AudioContext:', e);
+                    return null;
+                }
+            }
+            // Resume if suspended (some browsers suspend on load)
+            if (zzfxX.state === 'suspended') {
+                zzfxX.resume().catch(e => console.log('AudioContext resume failed:', e));
+            }
+            return zzfxX;
+        }
+        
+        window.zzfx = function(
+            volume = 1, randomness = 0.05, frequency = 220, attack = 0, sustain = 0, release = 0.1,
+            shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0,
+            repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1,
+            decay = 0, tremolo = 0
+        ) {
+            const sampleRate = 44100;
+            const PI2 = Math.PI * 2;
+            const startFrequency = frequency *= (1 + randomness * 2 * Math.random() - randomness) * PI2 / sampleRate;
+            const startSlide = slide *= 500 * PI2 / sampleRate / sampleRate;
+            
+            attack = attack * sampleRate || 9;
+            decay *= sampleRate;
+            sustain *= sampleRate;
+            release *= sampleRate;
+            delay *= sampleRate;
+            deltaSlide *= 500 * PI2 / Math.pow(sampleRate, 3);
+            modulation *= PI2 / sampleRate;
+            pitchJump *= PI2 / sampleRate;
+            pitchJumpTime *= sampleRate;
+            repeatTime = repeatTime * sampleRate | 0;
+            volume *= zzfxV;
+            
+            const audioContext = getAudioContext();
+            if (!audioContext) {
+                console.error('Cannot play sound: AudioContext not available');
+                return null;
+            }
+            
+            let length = (attack + decay + sustain + release + delay) | 0;
+            let b = [];
+            let t = 0;
+            let i = 0;
+            let s = 0;
+            let f;
+            let crush = 0;
+            let repeat = 0;
+            let jump = 1;
+            
+            for (; i < length; b[i++] = s * volume) {
+                if (!(++crush % ((bitCrush * 100) | 0))) {
+                    s = shape ? shape > 1 ? shape > 2 ? shape > 3 ? shape > 4 ?
+                        (t / PI2 % 1 < shapeCurve / 2) * 2 - 1 :
+                        Math.sin(Math.pow(t, 3)) :
+                        Math.max(Math.min(Math.tan(t), 1), -1) :
+                        1 - ((2 * t / PI2 % 2 + 2) % 2) :
+                        1 - 4 * Math.abs(Math.round(t / PI2) - t / PI2) :
+                        Math.sin(t);
+                    
+                    s = (repeatTime ? 1 - tremolo + tremolo * Math.sin(PI2 * i / repeatTime) : 1) *
+                        (shape > 4 ? s : Math.sign(s) * Math.pow(Math.abs(s), shapeCurve)) *
+                        (i < attack ? i / attack :
+                        i < attack + decay ? 1 - ((i - attack) / decay) * (1 - sustainVolume) :
+                        i < attack + decay + sustain ? sustainVolume :
+                        i < length - delay ? (length - i - delay) / release * sustainVolume : 0);
+                }
+                
+                f = (frequency += slide += deltaSlide) * Math.cos(modulation * t);
+                t += f + f * noise * Math.sin(Math.pow(i, 5));
+                
+                if (jump && ++jump > pitchJumpTime) {
+                    frequency += pitchJump;
+                    jump = 0;
+                }
+                
+                if (repeatTime && !(++repeat % repeatTime)) {
+                    frequency = startFrequency;
+                    slide = startSlide;
+                    jump = 1;
+                }
+            }
+            
+            const buffer = audioContext.createBuffer(1, b.length, sampleRate);
+            buffer.getChannelData(0).set(b);
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.start();
+            return source;
+        };
+    })();
+    </script>
+</head>
+<body class="font-fredoka bg-gradient-to-br from-indigo-950 via-navy-900 to-indigo-950 text-white overflow-hidden select-none">
+    
+    <!-- Menu Overlay -->
+    <div id="menu-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm transition-opacity duration-300">
+        <div class="glass-card p-8 rounded-3xl max-w-md w-full mx-4 text-center">
+            <h1 class="text-5xl mb-2 text-yellow-400">Alphabet Pop</h1>
+            <p class="text-xl mb-8 text-indigo-200">Pop the letter bubbles!</p>
+            
+            <div class="space-y-4">
+                <h2 class="text-2xl mb-4 text-indigo-100">Choose a Mode:</h2>
+                
+                <button id="mode-uppercase" class="mode-btn w-full py-4 text-2xl rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                    ABC (Uppercase)
+                </button>
+                
+                <button id="mode-lowercase" class="mode-btn w-full py-4 text-2xl rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                    abc (Lowercase)
+                </button>
+                
+                <button id="mode-mixed" class="mode-btn w-full py-4 text-2xl rounded-2xl bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+                    Aa (Mixed)
+                </button>
+            </div>
+            
+            <button id="close-menu" class="mt-6 text-indigo-300 hover:text-white text-lg underline">
+                Close Menu
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="w-full h-screen flex flex-col items-center justify-center p-4 relative">
+        
+        <!-- Top Bar -->
+        <div class="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+            <button id="menu-btn" class="p-3 rounded-full bg-indigo-800 bg-opacity-50 hover:bg-opacity-70 transition-all backdrop-blur-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            
+            <div class="px-4 py-2 rounded-full bg-indigo-800 bg-opacity-50 backdrop-blur-sm">
+                <span id="mode-indicator" class="text-lg"></span>
+            </div>
+        </div>
+
+        <!-- Target Letter Display -->
+        <div id="target-display" class="mb-8 text-center">
+            <p class="text-2xl md:text-3xl text-indigo-200 mb-2">Find the letter:</p>
+            <div id="target-letter" class="text-8xl md:text-9xl font-bold text-yellow-400 drop-shadow-2xl">
+                A
+            </div>
+        </div>
+
+        <!-- Bubbles Container -->
+        <div id="bubbles-container" class="flex flex-wrap justify-center items-center gap-6 md:gap-8 w-full max-w-4xl px-4">
+            <!-- Bubbles will be dynamically generated here -->
+        </div>
+
+        <!-- Confetti Canvas -->
+        <canvas id="confetti-canvas" class="fixed top-0 left-0 pointer-events-none z-40"></canvas>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed'));
+            });
+        }
+    </script>
+</body>
+</html>
+

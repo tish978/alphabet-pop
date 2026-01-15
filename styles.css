@@ -1,0 +1,163 @@
+/* Custom Font */
+.font-fredoka {
+    font-family: 'Fredoka One', cursive;
+}
+
+/* Glassmorphism Effect */
+.glass-card {
+    background: rgba(30, 58, 95, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Bubble Styles */
+.bubble {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.2),
+                inset 0 5px 20px rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.bubble:hover {
+    transform: scale(1.05);
+}
+
+.bubble:active {
+    transform: scale(0.95);
+}
+
+/* Floating Animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+    50% {
+        transform: translateY(-5px) rotate(-1deg);
+    }
+    75% {
+        transform: translateY(-12px) rotate(1deg);
+    }
+}
+
+.bubble.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.bubble.float:nth-child(1) { animation-delay: 0s; }
+.bubble.float:nth-child(2) { animation-delay: 0.5s; }
+.bubble.float:nth-child(3) { animation-delay: 1s; }
+.bubble.float:nth-child(4) { animation-delay: 1.5s; }
+.bubble.float:nth-child(5) { animation-delay: 2s; }
+.bubble.float:nth-child(6) { animation-delay: 2.5s; }
+
+/* Pop Animation */
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.bubble.pop {
+    animation: pop 0.5s ease-out forwards;
+    pointer-events: none;
+}
+
+/* Shake Animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-15px) rotate(-5deg); }
+    75% { transform: translateX(15px) rotate(5deg); }
+}
+
+.bubble.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Bubble Colors */
+.bubble-color-1 { background: linear-gradient(135deg, #ff6b9d, #ff8fab); }
+.bubble-color-2 { background: linear-gradient(135deg, #4ecdc4, #44a3a0); }
+.bubble-color-3 { background: linear-gradient(135deg, #ffe66d, #ffcc00); }
+.bubble-color-4 { background: linear-gradient(135deg, #a8e6cf, #88d8a3); }
+.bubble-color-5 { background: linear-gradient(135deg, #ffd3a5, #ffb347); }
+.bubble-color-6 { background: linear-gradient(135deg, #c7ceea, #b5bff4); }
+
+/* Text colors for bubbles */
+.bubble-color-1, .bubble-color-2, .bubble-color-3,
+.bubble-color-4, .bubble-color-5, .bubble-color-6 {
+    color: #1e3a5f;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Hide menu initially */
+#menu-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Prevent text selection and touch gestures */
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch shielding - prevent zoom and scroll */
+* {
+    touch-action: manipulation;
+}
+
+/* Responsive bubble sizes */
+@media (max-width: 640px) {
+    .bubble {
+        width: 100px;
+        height: 100px;
+        font-size: 3rem;
+    }
+    
+    #target-letter {
+        font-size: 6rem !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .bubble {
+        width: 140px;
+        height: 140px;
+        font-size: 5rem;
+    }
+}
+
+/* Ensure fullscreen on mobile */
+html, body {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    overflow: hidden;
+}
+
