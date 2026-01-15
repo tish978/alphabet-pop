@@ -76,3 +76,13 @@ coverage/
 .railway/
 .nixpacks/
 
+# Documentation files (optional - uncomment if you don't want to commit docs)
+DEPLOYMENT.md
+QUICKSTART.md
+README.md
+SOUND_EFFECTS_NPM.md
+SOUND_EFFECTS.md
+TESTING.md
+VOICE_QUICKSTART.md
+VOICE_SETUP.md
+
